@@ -14,6 +14,8 @@ import com.thekeirs.gameengine.system.MessageBus;
 public class Draw {
     private MessageBus mBus;
     private GameView mGameView;
+    private Thread mThread;
+
 
     private SurfaceHolder mHolder;
     private int mWidth, mHeight;
@@ -30,11 +32,32 @@ public class Draw {
                 mHeight = height;
 
                 mBus.postMessage(new Message("surface_ready", width, height));
-                forceUpdateRedraw();
+                // forceUpdateRedraw();
+
+                mThread = new Thread() {
+                    @Override
+                    public void run() {
+                        while (!isInterrupted()) {
+                            forceUpdateRedraw();
+                        }
+                    }
+                };
+                mThread.start();
+
             }
 
             @Override
             public void onSurfaceHolderClosing() {
+                if (mThread != null) {
+                    mThread.interrupt();
+                    try {
+                        mThread.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    mThread = null;
+                }
+
                 mHolder = null;
                 mWidth = 0;
                 mHeight = 0;

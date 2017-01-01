@@ -7,9 +7,16 @@ import java.util.Random;
  */
 
 final public class Rand {
+    final static int FPS = 60;
+
     private static Random mRand = new Random();
 
     public static int between(int min, int max) {
         return min + mRand.nextInt(max - min + 1);
+    }
+
+    public static boolean onceEvery(float seconds) {
+        int ticks = (int) (seconds * FPS);
+        return mRand.nextInt(ticks) == 0;
     }
 }

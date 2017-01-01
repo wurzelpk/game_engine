@@ -5,7 +5,6 @@ import com.thekeirs.gameengine.framework.Rand;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created by wurzel on 12/30/16.
@@ -14,9 +13,13 @@ import java.util.Random;
 public class GameLevel {
     public GameObjectManager manager;
     public List<GameObject> frogs;
+    public Scene scene;
 
     public GameLevel(GameObjectManager manager) {
         this.manager = manager;
+
+        scene = new SolidColorScene("#20c0ff");
+        manager.setScene(scene);
 
         frogs = new ArrayList<>();
 
