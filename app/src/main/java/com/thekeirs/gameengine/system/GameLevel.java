@@ -1,6 +1,5 @@
 package com.thekeirs.gameengine.system;
 
-import com.thekeirs.gameengine.R;
 import com.thekeirs.gameengine.framework.Rand;
 
 import java.util.ArrayList;
@@ -24,8 +23,7 @@ public class GameLevel {
         frogs = new ArrayList<>();
 
         for (int i = 0; i < 5; ++i) {
-            GameObject frog = new GameObject(manager, "frog" + i, Rand.between(0, 500), Rand.between(0, 500));
-            frog.loadImage(R.drawable.frog);
+            GameObject frog = new FrogSprite(manager, "frog" + i, Rand.between(0, 500), Rand.between(0, 500));
             frogs.add(frog);
         }
     }
