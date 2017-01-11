@@ -10,9 +10,11 @@ import java.util.Map;
  * Created by wurzel on 12/30/16.
  */
 
-public final class GameObjectManager implements IMessageClient {
-    public Map<String, GameObject> objects;
-    public Scene scene;
+public final class GameObjectManager implements IMessageClient, GameView.IRedrawService, GameView.IGameLogicService {
+    final private String TAG = "GameObjectManager";
+    private Map<String, GameObject> mObjects;
+    private Scene mScene;
+    private GameLevel mLevel;
 
     private Resources mResources;
     public MessageBus mBus;
@@ -20,9 +22,21 @@ public final class GameObjectManager implements IMessageClient {
     public GameObjectManager(MessageBus mbus, Resources res) {
         mResources = res;
 
-        objects = new HashMap<>();
+        mObjects = new HashMap<>();
         mBus = mbus;
         mBus.addClient(this);
+    }
+
+    public void setLevel(GameLevel level) {
+        if (mLevel != null) {
+            mLevel.finish();
+        }
+        mObjects.clear();
+        mScene = null;
+
+        mLevel = level;
+        mLevel.setObjectManager(this);
+        mLevel.setup();
     }
 
     public Resources getResources() {
@@ -30,45 +44,55 @@ public final class GameObjectManager implements IMessageClient {
     }
 
     public void addObject(GameObject obj) {
-        objects.put(obj.name, obj);
+        obj.setManager(this);
+        mObjects.put(obj.name, obj);
     }
 
     public GameObject getObjectByName(String name) {
-        return objects.get(name);
+        return mObjects.get(name);
     }
 
 
     public void setScene(Scene scene) {
-        this.scene = scene;
+        this.mScene = scene;
     }
 
     public void removeScene() {
-        this.scene = null;
+        this.mScene = null;
     }
 
     @Override
     public void handleMessage(Message msg) {
-        if (msg.type.equals("update_redraw")) {
-            Canvas canvas = (Canvas) msg.obj;
-            if (scene != null) {
-                scene.draw(canvas);
-            }
-            for (GameObject obj : objects.values()) {
-                obj.update();
-            }
-            for (GameObject obj : objects.values()) {
-                obj.draw(canvas);
-            }
-        } else if (msg.type.equals("touch")) {
+        if (msg.type.equals("touch")) {
             checkTouchedObjects(msg.x, msg.y);
+        } else if (msg.type.equals("surface_ready")) {
         }
     }
 
     public void checkTouchedObjects(int x, int y) {
-        for (GameObject obj : objects.values()) {
+        for (GameObject obj : mObjects.values()) {
             if (obj.contains(x, y)) {
                 obj.onTouch(x, y);
             }
+        }
+    }
+
+    @Override
+    public void draw(Canvas canvas) {
+        // Log.d(TAG, "draw");
+        if (mScene != null) {
+            mScene.draw(canvas);
+        }
+        for (GameObject obj : mObjects.values()) {
+            obj.draw(canvas);
+        }
+    }
+
+    @Override
+    public void update(int millis) {
+        // Log.d(TAG, "update");
+        for (GameObject obj : mObjects.values()) {
+            obj.update();
         }
     }
 }

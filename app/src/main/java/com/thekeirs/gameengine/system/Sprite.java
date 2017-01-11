@@ -9,20 +9,32 @@ import android.graphics.Canvas;
  */
 
 public class Sprite extends GameObject {
-    public Bitmap image;
+    private int mImageId = -1;
+    private Bitmap mImage;
 
-    public Sprite(GameObjectManager manager, String name, int x, int y) {
-        super(manager, name, x, y);
+    public Sprite(String name, int x, int y) {
+        super(name, x, y);
+    }
+
+    public Sprite(String name, int x, int y, int image_id) {
+        super(name, x, y);
+        loadImage(image_id);
     }
 
     public void loadImage(int id) {
-        image = BitmapFactory.decodeResource(manager.getResources(), id);
-        this.boundingRect.set(x, y, x + image.getWidth(), y + image.getHeight());
+        if (id != mImageId) {
+            mImageId = id;
+            mImage = null;
+        }
     }
 
     public void draw(Canvas c) {
+        if (mImage == null) {
+            mImage = BitmapFactory.decodeResource(manager.getResources(), mImageId);
+            this.boundingRect.set(x, y, x + mImage.getWidth(), y + mImage.getHeight());
+        }
         // Log.d("gameobject", "Drawing " + name + " at " + x + ", " + y);
-        c.drawBitmap(image, x, y, null);
+        c.drawBitmap(mImage, x, y, null);
     }
 
 

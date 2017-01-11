@@ -20,7 +20,9 @@ public final class MessageBus {
     }
 
     public void postMessage(Message msg) {
-        Log.d("msg", msg.type + " (" +  msg.x + "," + msg.y + ")");
+        if (!msg.type.equals("update_redraw")) {
+            Log.d("msg", msg.type + " (" + msg.x + "," + msg.y + ")");
+        }
         for (IMessageClient client: mClients) {
             client.handleMessage(msg);
         }

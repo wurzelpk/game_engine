@@ -1,7 +1,9 @@
 package com.thekeirs.gameengine.system;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -9,8 +11,19 @@ import android.view.SurfaceView;
  * Provides a surface for various tests to write to from background thread
  */
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
-    private SurfaceHolder mSurfaceHolder;
-    private SurfaceHolderManager mHolderManager;
+    final private String TAG = "GameView";
+
+    public interface IRedrawService {
+        void draw(Canvas canvas);
+    }
+
+    public interface IGameLogicService extends IMessageClient {
+        void update(int millis);
+    }
+
+    private IRedrawService mRedrawService;
+    private IGameLogicService mGameLogicService;
+    private GameViewThread mGameViewThread;
 
     public GameView(Context context) {
         super(context);
@@ -28,45 +41,48 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private void init(Context context, AttributeSet attrs, int defStyle) {
-        mSurfaceHolder = getHolder();
-        mSurfaceHolder.addCallback(this);
+        getHolder().addCallback(this);
     }
 
-    public void setHolderManager(SurfaceHolderManager manager) {
-        mHolderManager = manager;
+    public void setRedrawService(IRedrawService rs) {
+        mRedrawService = rs;
+    }
+
+    public void setGameLogicService(IGameLogicService gs) {
+        mGameLogicService = gs;
+    }
+
+
+    public void onResume() {
+
+    }
+
+    public void onPause() {
+
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        // Don't actually care about creation; only surfaceChanged when the surface is ready to do
+        // Don't actually care about creation; only surfaceChanged when the surface is ready to go
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        if (mSurfaceHolder != null) {
-            if (mHolderManager != null) {
-                mHolderManager.onSurfaceHolderClosing();
-            }
+        if (mGameViewThread != null) {
+            mGameViewThread.gracefulStop();
         }
-        mSurfaceHolder = holder;
-
-        if (mHolderManager != null) {
-            mHolderManager.onSurfaceHolderReady(holder, width, height);
+        if (holder != null) {
+            Log.d(TAG, "surfaceChanged, launching thread");
+            mGameViewThread = new GameViewThread(holder, mGameLogicService, mRedrawService);
+            mGameViewThread.start();
         }
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        if (mHolderManager != null) {
-            mHolderManager.onSurfaceHolderClosing();
+        if (mGameViewThread != null) {
+            mGameViewThread.gracefulStop();
         }
-        mSurfaceHolder = null;
-    }
-
-    public interface SurfaceHolderManager {
-        void onSurfaceHolderReady(SurfaceHolder holder, int width, int height);
-
-        void onSurfaceHolderClosing();
     }
 }
 

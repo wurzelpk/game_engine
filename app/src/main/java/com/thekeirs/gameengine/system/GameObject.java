@@ -13,19 +13,20 @@ abstract public class GameObject {
     public int x;
     public int y;
     public Bitmap image;
-    public GameObjectManager manager;
+    protected GameObjectManager manager;
     public Rect boundingRect;
 
-    public GameObject(GameObjectManager manager, String name, int x, int y) {
-        this.manager = manager;
+    public GameObject(String name, int x, int y) {
         this.name = name;
         this.x = x;
         this.y = y;
         this.boundingRect = new Rect(x, y, x, y);
-
-        this.manager.addObject(this);
     }
 
+    public void setManager(GameObjectManager manager) {
+        this.manager = manager;
+
+    }
     public void update() {
     }
 

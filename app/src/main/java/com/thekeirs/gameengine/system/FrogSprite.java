@@ -8,12 +8,15 @@ import com.thekeirs.gameengine.framework.Rand;
  */
 
 public class FrogSprite extends Sprite {
-    public FrogSprite(GameObjectManager manager, String name, int x, int y) {
-        super(manager, name, x, y);
+    public FrogSprite(String name, int x, int y) {
+        super(name, x, y);
         loadImage(R.drawable.frog);
     }
 
     public void update() {
+        if (image == null) {
+            return;
+        }
         if (Rand.onceEvery(2.0f)) {
             int dist = Rand.between(30, 50);
             double direction = Math.toRadians(Rand.between(0, 360));

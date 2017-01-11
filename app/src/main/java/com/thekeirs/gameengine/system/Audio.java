@@ -2,7 +2,8 @@ package com.thekeirs.gameengine.system;
 
 import android.content.Context;
 
-import com.thekeirs.gameengine.R;
+import java.util.HashSet;
+import java.util.Set;
 
 import im.delight.android.audio.SoundManager;
 
@@ -10,39 +11,49 @@ import im.delight.android.audio.SoundManager;
  * Created by wurzel on 12/31/16.
  */
 
-public class Audio implements IMessageClient {
-    private MessageBus mBus;
-    private Context mContext;
-    private SoundManager mSoundManager;
+/**
+ * Wraps https://github.com/delight-im/Android-Audio
+ * with a simple wrapper to keep track of what sounds have been
+ * loaded previously so we don't have to call load before every play.
+ * If the game activity is destroyed, we can preload all the
+ * previously-loaded sounds also, though whether this is a good
+ * idea is debatable (eg, if player has gone up a few levels, some
+ * old sounds may not be used on later levels.)
+ */
 
-    public Audio(Context context, MessageBus mbus) {
-        mBus = mbus;
-        mBus.addClient(this);
-        mContext = context;
-    }
+public class Audio {
+    static final int MAX_STREAMS = 4;
 
-    public void onResume() {
-        int maxStreams = 4;
-        mSoundManager = new SoundManager(mContext, maxStreams);
+    static final String TAG = "GameEngine-Audio";
+    static private SoundManager mSoundManager;
+    static private Set<Integer> mLoadedSounds = new HashSet<>();
+
+    static public void onResume(Context context) {
+        mSoundManager = new SoundManager(context, MAX_STREAMS);
         mSoundManager.start();
-        mSoundManager.load(R.raw.frog_croak);
+        preload();
     }
 
-    public void onPause() {
+    private static void preload() {
+        for (Integer id : mLoadedSounds) {
+            mSoundManager.load(id);
+        }
+    }
+
+    static public void onPause() {
         if (mSoundManager != null) {
             mSoundManager.cancel();
             mSoundManager = null;
         }
     }
 
-    @Override
-    public void handleMessage(Message msg) {
-        if (mSoundManager == null) {
-            return;
-        }
-
-        if (msg.type.equals("ribbit")) {
-            mSoundManager.play(R.raw.frog_croak);
+    static public void play(int id) {
+        if (mSoundManager != null) {
+            if (!mLoadedSounds.contains(id)) {
+                mSoundManager.load(id);
+                mLoadedSounds.add(id);
+            }
+            mSoundManager.play(id);
         }
     }
 }

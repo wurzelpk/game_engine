@@ -1,30 +1,22 @@
 package com.thekeirs.gameengine.system;
 
-import com.thekeirs.gameengine.framework.Rand;
-
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by wurzel on 12/30/16.
  */
 
-public class GameLevel {
-    public GameObjectManager manager;
-    public List<GameObject> frogs;
-    public Scene scene;
+abstract public class GameLevel {
+    protected GameObjectManager mManager;
 
-    public GameLevel(GameObjectManager manager) {
-        this.manager = manager;
+    public GameLevel() {
+    }
 
-        scene = new SolidColorScene("#20c0ff");
-        manager.setScene(scene);
+    public void setObjectManager(GameObjectManager manager) {
+        mManager = manager;
+    }
 
-        frogs = new ArrayList<>();
+    public void setup() {
+    }
 
-        for (int i = 0; i < 5; ++i) {
-            GameObject frog = new FrogSprite(manager, "frog" + i, Rand.between(0, 500), Rand.between(0, 500));
-            frogs.add(frog);
-        }
+    public void finish() {
     }
 }
