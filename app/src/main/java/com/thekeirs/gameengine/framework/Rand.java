@@ -7,6 +7,7 @@ import java.util.Random;
  */
 
 final public class Rand {
+    final static private String TAG = "Rand";
     final static int FPS = 60;
 
     private static Random mRand = new Random();
@@ -17,6 +18,7 @@ final public class Rand {
 
     public static boolean onceEvery(float seconds) {
         int ticks = (int) (seconds * FPS);
-        return mRand.nextInt(ticks) == 0;
+        int prob = mRand.nextInt(ticks);
+        return prob == 0;
     }
 }

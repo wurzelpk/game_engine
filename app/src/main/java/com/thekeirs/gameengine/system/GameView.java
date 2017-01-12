@@ -4,8 +4,10 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 
 /**
  * Provides a surface for various tests to write to from background thread
@@ -13,11 +15,13 @@ import android.view.SurfaceView;
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     final private String TAG = "GameView";
 
+
     public interface IRedrawService {
         void draw(Canvas canvas);
     }
 
     public interface IGameLogicService extends IMessageClient {
+        void onMotionEvent(MotionEvent e);
         void update(int millis);
     }
 
@@ -42,6 +46,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     private void init(Context context, AttributeSet attrs, int defStyle) {
         getHolder().addCallback(this);
+        this.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // TODO: Change to applyTransform or something like that
+                mGameViewThread.queueEvent(event);
+                return true;
+            }
+        });
     }
 
     public void setRedrawService(IRedrawService rs) {
@@ -74,6 +86,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         if (holder != null) {
             Log.d(TAG, "surfaceChanged, launching thread");
             mGameViewThread = new GameViewThread(holder, mGameLogicService, mRedrawService);
+            if (width == 0 || height == 0) {
+                Log.e(TAG, "Illegal width/height: " + width + ", " + height);
+            } else {
+                mGameViewThread.setEventScalingFactors(1.0f / width, 1.0f / height);
+            }
             mGameViewThread.start();
         }
     }

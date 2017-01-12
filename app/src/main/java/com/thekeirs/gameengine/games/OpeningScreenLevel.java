@@ -16,14 +16,15 @@ public class OpeningScreenLevel extends GameLevel {
 
     public void setup() {
 
+        mManager.setWorldScreenSize(1600, 900);
         mManager.setScene(new BackgroundImageScene(mManager, R.raw.opening_background));
 
         mManager.addObject(
                 new Sprite("frog_herder_button",
-                        300, 100,
+                        400, 100, 800, 75,
                         R.raw.button_frog_herder) {
                     @Override
-                    public void onTouch(int x, int y) {
+                    public void onTouch(float x, float y) {
                         mManager.setLevel(new FrogHerderLevel());
                     }
                 }
@@ -31,10 +32,10 @@ public class OpeningScreenLevel extends GameLevel {
 
         mManager.addObject(
                 new Sprite("frogger_button",
-                        300, 175,
+                        400, 200, 800, 75,
                         R.raw.button_frogger) {
                     @Override
-                    public void onTouch(int x, int y) {
+                    public void onTouch(float x, float y) {
                         mManager.setLevel(new FrogHerderLevel());
                     }
                 }
@@ -42,10 +43,10 @@ public class OpeningScreenLevel extends GameLevel {
 
         mManager.addObject(
                 new Sprite("castle_blaster_button",
-                        300, 250,
+                        400, 300, 800, 75,
                         R.raw.button_castle_blaster) {
                     @Override
-                    public void onTouch(int x, int y) {
+                    public void onTouch(float x, float y) {
                         mManager.setLevel(new FrogHerderLevel());
                     }
                 }

@@ -8,44 +8,44 @@ import com.thekeirs.gameengine.framework.Rand;
  */
 
 public class FrogSprite extends Sprite {
-    public FrogSprite(String name, int x, int y) {
-        super(name, x, y);
+    final private static String TAG = "FrogSprite";
+
+    public FrogSprite(String name, float x, float y, float width, float height) {
+        super(name, x, y, width, height);
         loadImage(R.drawable.frog);
     }
 
+    @Override
     public void update() {
-        if (image == null) {
+        if (!imageLoaded()) {
             return;
         }
         if (Rand.onceEvery(2.0f)) {
             int dist = Rand.between(30, 50);
-            double direction = Math.toRadians(Rand.between(0, 360));
+            float direction = (float) Math.toRadians(Rand.between(0, 360));
             hop(dist, direction);
         }
 
-        int width = image.getWidth();
-        int height = image.getHeight();
-
-        if (x < 0) {
-            x = 0;
-        } else if (x + width > 500) {
-            x = 500 - width;
+        if (boundingRect.left < 0) {
+            boundingRect.offsetTo(0, boundingRect.top);
+        } else if (boundingRect.right > manager.mWorldScreenWidth) {
+            boundingRect.offset(manager.mWorldScreenWidth - boundingRect.right, 0);
         }
 
-        if (y < 0) {
-            y = 0;
-        } else if (y + height > 500) {
-            y = 500 - height;
+        if (boundingRect.top < 0) {
+            boundingRect.offsetTo(boundingRect.left, 0);
+        } else if (boundingRect.bottom > manager.mWorldScreenHeight) {
+            boundingRect.offset(0, manager.mWorldScreenHeight - boundingRect.bottom);
         }
-
-        this.boundingRect.set(x, y, x + width, y + height);
     }
 
-    public void onTouch(int x, int y) {
+    @Override
+    public void onTouch(float x, float y) {
         int dist = Rand.between(30, 50);
 
-        hopToward(dist, 250, 250);
+        hopToward(dist, manager.mWorldScreenWidth / 2.0f, manager.mWorldScreenHeight / 2.0f);
 
         manager.mBus.postMessage(new Message("ribbit"));
+        Audio.play(R.raw.frog_croak);
     }
 }

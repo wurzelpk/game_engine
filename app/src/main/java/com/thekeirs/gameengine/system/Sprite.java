@@ -3,6 +3,8 @@ package com.thekeirs.gameengine.system;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Rect;
+import android.graphics.RectF;
 
 /**
  * Created by wurzel on 12/30/16.
@@ -10,14 +12,14 @@ import android.graphics.Canvas;
 
 public class Sprite extends GameObject {
     private int mImageId = -1;
-    private Bitmap mImage;
+    protected Bitmap mImage;
 
-    public Sprite(String name, int x, int y) {
-        super(name, x, y);
+    public Sprite(String name, float x, float y, float width, float height) {
+        super(name, new RectF(x, y, x + width, y + height));
     }
 
-    public Sprite(String name, int x, int y, int image_id) {
-        super(name, x, y);
+    public Sprite(String name, float x, float y, float width, float height, int image_id) {
+        super(name, new RectF(x, y, x + width, y + height));
         loadImage(image_id);
     }
 
@@ -28,14 +30,22 @@ public class Sprite extends GameObject {
         }
     }
 
-    public void draw(Canvas c) {
-        if (mImage == null) {
-            mImage = BitmapFactory.decodeResource(manager.getResources(), mImageId);
-            this.boundingRect.set(x, y, x + mImage.getWidth(), y + mImage.getHeight());
-        }
-        // Log.d("gameobject", "Drawing " + name + " at " + x + ", " + y);
-        c.drawBitmap(mImage, x, y, null);
+    public boolean imageLoaded() {
+        return mImage != null;
     }
 
+    public void update() {
 
+    }
+
+    public void draw(Canvas c, float xScale, float yScale) {
+        if (mImage == null) {
+            mImage = BitmapFactory.decodeResource(manager.getResources(), mImageId);
+        }
+        // Log.d("gameobject", "Drawing " + name + " at " + x + ", " + y);
+
+        RectF screenRect = new RectF(boundingRect.left * xScale, boundingRect.top * yScale, boundingRect.right * xScale, boundingRect.bottom * yScale);
+
+        c.drawBitmap(mImage, new Rect(0, 0, mImage.getWidth(), mImage.getHeight()), screenRect, null);
+    }
 }

@@ -3,7 +3,6 @@ package com.thekeirs.gameengine;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import com.thekeirs.gameengine.framework.InputHandler;
 import com.thekeirs.gameengine.games.OpeningScreenLevel;
 import com.thekeirs.gameengine.system.Audio;
 import com.thekeirs.gameengine.system.GameObjectManager;
@@ -12,7 +11,6 @@ import com.thekeirs.gameengine.system.MessageBus;
 
 public class GameActivity extends AppCompatActivity {
     private MessageBus mBus;
-    private InputHandler mInputHandler;
     private GameView mGameView;
     private GameObjectManager mObjectManager;
 
@@ -22,13 +20,11 @@ public class GameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_game);
 
         mBus = new MessageBus();
-        mInputHandler = new InputHandler(mBus);
 
         mObjectManager = new GameObjectManager(mBus, getResources());
         mObjectManager.setLevel(new OpeningScreenLevel());
 
         mGameView = (GameView) findViewById(R.id.gameview);
-        mGameView.setOnTouchListener(mInputHandler);
         mGameView.setRedrawService(mObjectManager);
         mGameView.setGameLogicService(mObjectManager);
     }
